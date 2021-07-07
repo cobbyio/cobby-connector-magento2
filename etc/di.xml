@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+
+    <preference for="Cobby\Connector\Api\CalculatorInterface" type="Cobby\Connector\Model\Calculator" />
+    <preference for="Cobby\Connector\Api\ConfigManagementInterface" type="Cobby\Connector\Model\ConfigManagement" />
+    <preference for="Cobby\Connector\Api\CustomerGroupManagementInterface" type="Cobby\Connector\Model\CustomerGroupManagement" />
+    <preference for="Cobby\Connector\Api\CatalogProductAttributeSetInterface" type="Cobby\Connector\Model\Catalog\Product\Attribute\Set"/>
+    <preference for="Cobby\Connector\Api\CatalogProductAttributeInterface" type="Cobby\Connector\Model\Catalog\Product\Attribute"/>
+    <preference for="Cobby\Connector\Api\CatalogProductAttributeOptionInterface" type="Cobby\Connector\Model\Catalog\Product\Attribute\Option" />
+    <preference for="Cobby\Connector\Api\ProductManagementInterface" type="Cobby\Connector\Model\ProductManagement" />
+    <preference for="Cobby\Connector\Api\ExportProductManagementInterface" type="Cobby\Connector\Model\Export\Product" />
+    <preference for="Cobby\Connector\Api\DebugInterface" type="Cobby\Connector\Model\Debug"/>
+    <preference for="Cobby\Connector\Api\SetupInterface" type="Cobby\Connector\Model\Setup" />
+
+    <preference for="Cobby\Connector\Api\QueueRepositoryInterface" type="Cobby\Connector\Model\QueueRepository" />
+    <preference for="Cobby\Connector\Api\IndexerRepositoryInterface" type="Cobby\Connector\Model\IndexerRepository" />
+    <preference for="Cobby\Connector\Api\StoreRepositoryInterface" type="Cobby\Connector\Model\StoreRepository" />
+    <preference for="Cobby\Connector\Api\GroupRepositoryInterface" type="Cobby\Connector\Model\GroupRepository" />
+    <preference for="Cobby\Connector\Api\WebsiteRepositoryInterface" type="Cobby\Connector\Model\WebsiteRepository" />
+    <preference for="Cobby\Connector\Api\CategoryRepositoryInterface" type="Cobby\Connector\Model\CategoryRepository" />
+    <preference for="Cobby\Connector\Api\InventorySourceRepositoryInterface" type="Cobby\Connector\Model\InventorySourceRepository" />
+
+
+    <preference for="Cobby\Connector\Api\ImportProductLinkManagementInterface" type="Cobby\Connector\Model\Import\Product\LinkManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductCategoryManagementInterface" type="Cobby\Connector\Model\Import\Product\CategoryManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductTierPriceManagementInterface" type="Cobby\Connector\Model\Import\Product\TierPriceManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductStockManagementInterface" type="Cobby\Connector\Model\Import\Product\StockManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductImageManagementInterface" type="Cobby\Connector\Model\Import\Product\ImageManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductGroupedManagementInterface" type="Cobby\Connector\Model\Import\Product\GroupedManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductConfigurableManagementInterface" type="Cobby\Connector\Model\Import\Product\ConfigurableManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductCustomOptionManagementInterface" type="Cobby\Connector\Model\Import\Product\CustomOptionManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductBundleManagementInterface" type="Cobby\Connector\Model\Import\Product\BundleManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductUrlManagementInterface" type="Cobby\Connector\Model\Import\Product\UrlManagement" />
+    <preference for="Cobby\Connector\Api\ImportProductManagementInterface" type="Cobby\Connector\Model\Import\Product\ProductManagement" />
+    <preference for="Cobby\Connector\Api\ImportInterface" type="Cobby\Connector\Model\Import" />
+
+    <preference for="Cobby\Connector\Api\Data\ImportProductsFinishInterface" type="Cobby\Connector\Model\Data\ImportProductsFinish"/>
+    <preference for="Cobby\Connector\Api\Data\ImportProductsFinishEntityInterface" type="Cobby\Connector\Model\Data\ImportProductsFinishEntity"/>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="queue_product_plugin_resource" type="Cobby\Connector\Model\Plugin\Catalog\Product"/>
+    </type>
+    <type name="Magento\Catalog\Model\Product\Action">
+        <plugin name="queue_product_plugin_action" type="Cobby\Connector\Model\Plugin\Catalog\Product"/>
+    </type>
+
+    <type name="Magento\Store\Model\ResourceModel\Website">
+        <plugin name="plugin_store_website" type="Cobby\Connector\Model\Plugin\Store\Website"/>
+    </type>
+
+    <type name="Magento\Store\Model\ResourceModel\Store">
+        <plugin name="plugin_store" type="Cobby\Connector\Model\Plugin\Store\Store"/>
+    </type>
+
+    <!--type name="Magento\Config\Model\ResourceModel\Config">
+        <plugin name="plugin_config" type="Cobby\Connector\Model\Plugin\Config\Config"/>
+    </type-->
+
+    <type name="Magento\Config\Model\Config">
+        <plugin name="config_plugin_model" type="Cobby\Connector\Model\Plugin\Config\Config"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Category">
+        <plugin name="queue_category_plugin_resource" type="Cobby\Connector\Model\Plugin\Catalog\Category"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Attribute">
+        <plugin name="queue_attribute_plugin_resource" type="Cobby\Connector\Model\Plugin\Catalog\Attribute"/>
+    </type>
+
+    <type name="Magento\CatalogInventory\Model\ResourceModel\Stock\Item">
+        <plugin name="queue_stock_plugin_resource" type="Cobby\Connector\Model\Plugin\CatalogInventory\Stock"/>
+    </type>
+
+    <type name="Magento\Customer\Model\ResourceModel\Group">
+        <plugin name="queue_customer_plugin_resource" type="Cobby\Connector\Model\Plugin\Customer\Customer"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Eav\Attribute">
+        <plugin name="save_swatches_option_params" type="Magento\Swatches\Model\Plugin\EavAttribute" disabled="true"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Eav\Attribute">
+        <plugin name="cobby_save_swatches_option_params" type="Cobby\Connector\Model\Plugin\EavAttribute" sortOrder="1"/>
+    </type>
+
+</config>

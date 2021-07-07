@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Representation of Webapi module in System Configuration (Magento admin panel).
+ *
+ * Copyright © 2015 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="cobby" translate="label" type="text" sortOrder="150" showInDefault="1">
+            <label>cobby</label>
+            <tab>service</tab>
+            <resource>Cobby_Connector::config_cobby</resource>
+            <group id="settings" translate="label" type="text" sortOrder="100" showInDefault="1">
+                <label>General Settings</label>
+                <attribute type="expanded">1</attribute>
+                <field id="active" translate="label tooltip" type="select" sortOrder="1" showInDefault="1">
+                    <label>Active</label>
+                    <tooltip>Activate or deactivate cobby module</tooltip>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="license_key" translate="label" type="label" showInDefault="1" sortOrder="10">
+                    <label>License key</label>
+                    <validate>validate-alphanum required-entry</validate>
+                    <config_path>cobby/settings/license_key</config_path>
+                </field>
+            </group>
+
+            <group id="stock" translate="label" type="text" sortOrder="200" showInDefault="1">
+                <label>Stock Settings</label>
+                <field id="manage" translate="label tooltip" type="select" sortOrder="10" showInDefault="1">
+                    <label>Stock Management</label>
+                    <tooltip>change how cobby handles the stock-attributes. Set disabled/readonly to disallow changes to stock from cobby</tooltip>
+                    <source_model>Cobby\Connector\Model\Config\Source\Managestock</source_model>
+                    <validate>validate-select</validate>
+                </field>
+                <field id="quantity" translate="label tooltip" type="text" sortOrder="20" showInDefault="1">
+                    <label>Default Quantity</label>
+                    <depends><field id="manage" separator=",">1,2</field></depends>
+                    <tooltip>what shall cobby transmit for quantity on product-creation?</tooltip>
+                    <comment>fixed constant to use for new products</comment>
+                    <validate>validate-number required-entry</validate>
+                </field>
+                <field id="availability" translate="label tooltip" type="select" sortOrder="30" showInDefault="1">
+                    <label>Default Stock Availability</label>
+                    <depends><field id="manage" separator=",">1,2</field></depends>
+                    <tooltip>what shall cobby transmit for Stock availability on product-creation?</tooltip>
+                    <comment>fixed constant to use for new products</comment>
+                    <source_model>Magento\CatalogInventory\Model\Source\Stock</source_model>
+                    <validate>validate-select</validate>
+                </field>
+            </group>
+
+
+            <group id="advanced" translate="label" type="text" sortOrder="400" showInDefault="1">
+                <label>Advanced</label>
+                <field id="overwrite_images" translate="label tooltip" type="select" sortOrder="51" showInDefault="1">
+                    <label>Overwrite Images</label>
+                    <comment>Overwrite existing images with same names to prevent creation of duplicates.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>cobby/settings/overwrite_images</config_path>
+                </field>
+            </group>
+
+            <group id="systemcheck" translate="label comment" type="text" sortOrder="500" showInDefault="1">
+                <label>System check</label>
+                <attribute type="expanded">1</attribute>
+                <comment>This is a system check, if you run into problems check here</comment>
+                <frontend_model>Cobby\Connector\Block\System\Config\Systemcheck</frontend_model>
+            </group>
+
+            <group id="version" translate="label" type="text" sortOrder="600" showInDefault="1">
+                <attribute type="expanded">1</attribute>
+                <field id="version" translate="label" type="label" showInDefault="1">
+                    <label>cobby Version</label>
+                    <config_path>cobby/settings/cobby_version</config_path>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
+

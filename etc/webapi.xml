@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../app/code/Magento/Webapi/etc/webapi.xsd">
+
+    <route url="/V1/calculator/add/:num1/:num2" method="GET">
+        <service class="Cobby\Connector\Api\CalculatorInterface" method="add"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <!-- Catalog -->
+    <route url="/V1/cobby/product/ids" method="GET">
+        <service class="Cobby\Connector\Api\ProductManagementInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+	
+    <route url="/V1/cobby/product/skus" method="POST">
+        <service class="Cobby\Connector\Api\ProductManagementInterface" method="updateSkus"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/product/websites" method="POST">
+        <service class="Cobby\Connector\Api\ProductManagementInterface" method="updateWebsites"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/product/attributes" method="GET">
+        <service class="Cobby\Connector\Api\CatalogProductAttributeInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/product/attribute/options" method="GET">
+        <service class="Cobby\Connector\Api\CatalogProductAttributeOptionInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="V1/cobby/product/attribute/sets" method="GET">
+        <service class="Cobby\Connector\Api\CatalogProductAttributeSetInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/product/attribute/options" method="POST">
+        <service class="Cobby\Connector\Api\CatalogProductAttributeOptionInterface" method="import"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+
+    <!-- Store -->
+    <route url="/V1/cobby/store/websites" method="GET">
+        <service class="Cobby\Connector\Api\WebsiteRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/store/storeViews" method="GET">
+        <service class="Cobby\Connector\Api\StoreRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/store/storeGroups" method="GET">
+        <service class="Cobby\Connector\Api\GroupRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <!-- Category -->
+    <route url="/V1/cobby/categories" method="GET">
+        <service class="Cobby\Connector\Api\CategoryRepositoryInterface" method="getList" />
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <!-- Config -->
+    <route url="/V1/cobby/configs" method="GET">
+        <service class="Cobby\Connector\Api\ConfigManagementInterface" method="getList" />
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/report" method="GET">
+        <service class="Cobby\Connector\Api\ConfigManagementInterface" method="getReport" />
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+	</route>
+        
+    <route url="/V1/cobby/configs/active" method="POST">
+        <service class="Cobby\Connector\Api\ConfigManagementInterface" method="active" />
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <!-- CustomerGroup -->
+    <route url="/V1/cobby/customer/groups" method="GET">
+        <service class="Cobby\Connector\Api\CustomerGroupManagementInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <!-- Queue -->
+    <route url="/V1/cobby/queue/max" method="GET">
+        <service class="Cobby\Connector\Api\QueueRepositoryInterface" method="getMax"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/queue" method="GET">
+        <service class="Cobby\Connector\Api\QueueRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/queue" method="DELETE">
+        <service class="Cobby\Connector\Api\QueueRepositoryInterface" method="delete"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <!-- Indexer -->
+
+    <route url="/V1/cobby/indexer" method="GET">
+        <service class="Cobby\Connector\Api\IndexerRepositoryInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/indexer/reindex" method="POST">
+        <service class="Cobby\Connector\Api\IndexerRepositoryInterface" method="reindex"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <!-- Export -->
+    <route url="/V1/cobby/export/products" method="POST">
+        <service class="Cobby\Connector\Api\ExportProductManagementInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/debug" method="GET">
+        <service class="Cobby\Connector\Api\DebugInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/export/inventory/sources" method="GET">
+        <service class="Cobby\Connector\Api\InventorySourceRepositoryInterface" method="export" />
+        <resources>
+            <resource ref="Cobby_Connector::cobby" />
+        </resources>
+    </route>
+
+    <!-- Import -->
+    <route url="/V1/cobby/import/products" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProducts"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/links" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductLinks"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/categories" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductCategories"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/tierPrices" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductTierPrices"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/stocks" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductStocks"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/images" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductImages"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+	<route url="/V1/cobby/import/products/urls" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductUrls"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+	
+    <route url="/V1/cobby/import/products/grouped" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductGrouped"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/configurable" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductConfigurable"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/customOption" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductCustomOption"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/bundle" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductBundle"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/start" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductsStart"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/import/products/finish" method="POST">
+        <service class="Cobby\Connector\Api\ImportInterface" method="importProductsFinish"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/setup" method="GET">
+        <service class="Cobby\Connector\Api\SetupInterface" method="export"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+
+    <route url="/V1/cobby/setup" method="POST">
+        <service class="Cobby\Connector\Api\SetupInterface" method="import"/>
+        <resources>
+            <resource ref="Cobby_Connector::cobby"/>
+        </resources>
+    </route>
+</routes>
