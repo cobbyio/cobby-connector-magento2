@@ -1,71 +1,9 @@
 <?php
-//namespace Cobby\Connector\Model;
-//
-//use \Magento\Framework\Api\AttributeValueFactory;
-//
-//class Product extends \Magento\Framework\Api\AbstractExtensibleObject
-//    implements \Cobby\Connector\Api\Data\ProductInterface
-//{
-//
-//    /**
-//     * @var \Magento\Catalog\Api\ProductAttributeRepositoryInterface
-//     */
-//    protected $metadataService;
-//
-//    /**
-//     * Initialize dependencies.
-//     *
-//     * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
-//     * @param AttributeValueFactory $attributeValueFactory
-//     * @param \Magento\Catalog\Api\ProductAttributeRepositoryInterface $metadataService
-//     * @param array $data
-//     */
-//    public function __construct(
-//        \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
-//        AttributeValueFactory $attributeValueFactory,
-//        \Magento\Catalog\Api\ProductAttributeRepositoryInterface $metadataService,
-//        $data = []
-//    ) {
-//        $this->metadataService = $metadataService;
-//        parent::__construct($extensionFactory, $attributeValueFactory, $data);
-//        $this->_init('Cobby\Connector\Model\ResourceModel\Product');
-//    }
-//
-//    /**
-//     * Retrieve sku through type instance
-//     *
-//     * @return string
-//     */
-//    public function getSku()
-//    {
-//        return $this->_get(self::SKU);
-//    }
-//
-//
-//    //@codeCoverageIgnoreEnd
-//    /**
-//     * Set product sku
-//     *
-//     * @param string $sku
-//     * @return $this
-//     */
-//    public function setSku($sku)
-//    {
-//        return $this->setData(self::SKU, $sku);
-//    }
-//
-//    /**
-//     * {@inheritdoc}
-//     */
-//    protected function getCustomAttributesCodes()
-//    {
-//        if ($this->customAttributesCodes === null) {
-//            $this->customAttributesCodes = $this->getEavAttributesCodes($this->metadataService);
-//        }
-//        return $this->customAttributesCodes;
-//    }
-//}
 
+/*
+ * @copyright Copyright (c) 2021 mash2 GmbH & Co. KG. All rights reserved.
+ * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0).
+ */
 
 namespace Cobby\Connector\Model;
 

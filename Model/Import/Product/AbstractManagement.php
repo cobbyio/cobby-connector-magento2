@@ -1,4 +1,10 @@
 <?php
+
+/*
+ * @copyright Copyright (c) 2021 mash2 GmbH & Co. KG. All rights reserved.
+ * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0).
+ */
+
 namespace Cobby\Connector\Model\Import\Product;
 
 abstract class AbstractManagement extends \Cobby\Connector\Model\Import\AbstractEntity
@@ -26,6 +32,13 @@ abstract class AbstractManagement extends \Cobby\Connector\Model\Import\Abstract
      * @var string
      */
     private $productEntityLinkField;
+
+    /**
+     * Product entity identifier field
+     *
+     * @var string
+     */
+    private $productEntityIdentifierField;
 
     /**
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
@@ -93,13 +106,19 @@ abstract class AbstractManagement extends \Cobby\Connector\Model\Import\Abstract
      */
     protected function touchProducts($productIds)
     {
-        $entityRowsUp = array();
+        $collection = $this->productCollectionFactory
+            ->create()
+            ->addAttributeToFilter('entity_id', array('in' => $productIds));
 
         $this->product->updateHash($productIds);
 
         $updatedAt = (new \DateTime())->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT);
-        foreach ($productIds as $productId) {
-            $entityRowsUp[] = array( 'updated_at' => $updatedAt, 'entity_id' => $productId );
+        $entityRowsUp = array();
+        foreach ($collection as $info) {
+            $entityRowsUp[] = [
+                'updated_at' => $updatedAt,
+                $this->getProductEntityLinkField() => $info[$this->getProductEntityLinkField()]
+            ];
         }
 
         if (count($entityRowsUp) > 0) {
@@ -135,5 +154,20 @@ abstract class AbstractManagement extends \Cobby\Connector\Model\Import\Abstract
                 ->getLinkField();
         }
         return $this->productEntityLinkField;
+    }
+
+    /**
+     * Get product entity identifier field
+     *
+     * @return string
+     */
+    protected function getProductIdentifierField()
+    {
+        if (!$this->productEntityIdentifierField) {
+            $this->productEntityIdentifierField = $this->getMetadataPool()
+                ->getMetadata(\Magento\Catalog\Api\Data\ProductInterface::class)
+                ->getIdentifierField();
+        }
+        return $this->productEntityIdentifierField;
     }
 }

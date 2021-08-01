@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * @copyright Copyright (c) 2021 mash2 GmbH & Co. KG. All rights reserved.
+ * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0).
+ */
+
 namespace Cobby\Connector\Block\System\Config;
 
 use Magento\Backend\Block\Context;
@@ -20,7 +25,6 @@ class Systemcheck extends Fieldset
     const PHP_VERSION = 'phpVersion';
     const MAINTENANCE = 'maintenance';
     const INDEXERS = 'indexers';
-    const URL = 'url';
     const COBBY_ACTIVE = 'cobbyActive';
     const COBBY_VERSION = 'cobbyVersion';
 
@@ -69,7 +73,6 @@ class Systemcheck extends Fieldset
         $html .= $this->getMemory($element);
         $html .= $this->getMaintenance($element);
         $html .= $this->getIndexers($element);
-        $html .= $this->getUrlCheck($element);
         $html .= $this->getCobbyActive($element);
         $html .= $this->getCobbyVersion($element);
 
@@ -141,17 +144,6 @@ class Systemcheck extends Fieldset
         $fieldValue = $this->htmlBuilder($sectionValue);
 
         return $this->getFieldHtml($fieldset, 'indexers', $label, $fieldValue, $icon);
-    }
-
-    private function getUrlCheck($fieldset)
-    {
-        $sectionValue = $this->systemCheckHelper->getElement(self::URL);
-        $icon = $this->getIcon($sectionValue[SystemcheckHelper::CODE]);
-        $label = $icon . __(" Url");
-
-        $fieldValue = $this->htmlBuilder($sectionValue);
-
-        return $this->getFieldHtml($fieldset, 'url', $label, $fieldValue, $icon);
     }
 
     private function getCobbyActive($fieldset)
