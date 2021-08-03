@@ -20,13 +20,6 @@ interface ConfigManagementInterface
     public function getList();
 
     /**
-     *
-     * @api
-     * @return mixed
-     */
-    public function getReport();
-
-    /**
      * @api
      * @param string $jsonData
      * @return bool

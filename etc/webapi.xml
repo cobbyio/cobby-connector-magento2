@@ -100,13 +100,6 @@
             <resource ref="Cobby_Connector::cobby" />
         </resources>
     </route>
-
-    <route url="/V1/cobby/report" method="GET">
-        <service class="Cobby\Connector\Api\ConfigManagementInterface" method="getReport" />
-        <resources>
-            <resource ref="Cobby_Connector::cobby" />
-        </resources>
-	</route>
         
     <route url="/V1/cobby/configs/active" method="POST">
         <service class="Cobby\Connector\Api\ConfigManagementInterface" method="active" />
