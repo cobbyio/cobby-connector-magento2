@@ -1,8 +1,12 @@
 {
 	"name" : "cobbyio/cobby-connector-magento2",
 	"description" : "This extension for Magento 2 provides a direct integration of the cobby management methods to your Magento 2 shop.",
-	"version" : "2.0.3",
+	"version" : "2.0.4",
 	"type" : "magento2-module",
+	"require": {
+		"php": "~7.2.0|~7.3.0|~7.4.0",
+		"magento/framework": "^102.0|^103.0"
+	},
 	"license" : "OSL-3.0",
 	"autoload" : {
 		"files" : [
