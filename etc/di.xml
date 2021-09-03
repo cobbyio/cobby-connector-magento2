@@ -88,4 +88,7 @@
         <plugin name="cobby_save_swatches_option_params" type="Cobby\Connector\Model\Plugin\EavAttribute" sortOrder="1"/>
     </type>
 
+    <type name="Magento\Setup\Model\FixtureGenerator\EntityGeneratorFactory">
+        <plugin name="cobby_update_custom_table_map" type="Cobby\Connector\Model\Plugin\UpdateCustomTableMapPlugin" sortOrder="1"/>
+    </type>
 </config>
