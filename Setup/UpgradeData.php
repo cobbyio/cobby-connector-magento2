@@ -25,7 +25,7 @@ class UpgradeData implements UpgradeDataInterface {
             $installer->run("
                 INSERT INTO `{$installer->getTable('cobby_connector_product')}`
                 (`entity_id`, `hash`)
-                    SELECT `entity_id`, 'init'
+                    SELECT DISTINCT `entity_id`, 'init'
                         FROM `{$installer->getTable('catalog_product_entity')}`;
             ");
         }

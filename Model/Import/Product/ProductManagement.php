@@ -310,9 +310,11 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
             $this->eventManager->dispatch('cobby_import_product_import_after', array('transport' => $transportObject));
         }
 
-        foreach ($this->newSkus as $sku => $data) {
-            $data['sku'] = $sku;
-            $result[] = $data;
+        foreach ($this->newSkus as $sku => $item) {
+            $product = $item;
+            $product['sku'] = $sku;
+            $product['errors'] = array();
+            $result[] = $product;
         }
 
         return $result;
