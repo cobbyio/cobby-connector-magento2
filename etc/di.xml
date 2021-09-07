@@ -91,4 +91,10 @@
     <type name="Magento\Setup\Model\FixtureGenerator\EntityGeneratorFactory">
         <plugin name="cobby_update_custom_table_map" type="Cobby\Connector\Model\Plugin\UpdateCustomTableMapPlugin" sortOrder="1"/>
     </type>
+	
+	<type name="Magento\Framework\Webapi\Validator\EntityArrayValidator">
+        <arguments>
+            <argument name="complexArrayItemLimit" xsi:type="number">1024</argument>
+        </arguments>
+    </type>
 </config>
