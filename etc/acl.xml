@@ -8,7 +8,7 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="Cobby_Connector::cobby" title="Cobby" sortOrder="10" />
+                <resource id="Cobby_Connector::cobby" title="cobby" sortOrder="10" />
             </resource>
         </resources>
     </acl>
