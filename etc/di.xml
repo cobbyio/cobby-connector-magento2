@@ -40,6 +40,12 @@
     <preference for="Cobby\Connector\Api\Data\ImportProductsFinishInterface" type="Cobby\Connector\Model\Data\ImportProductsFinish"/>
     <preference for="Cobby\Connector\Api\Data\ImportProductsFinishEntityInterface" type="Cobby\Connector\Model\Data\ImportProductsFinishEntity"/>
 
+    <type name="Cobby\Connector\Model\Catalog\Product\Attribute\Option">
+        <arguments>
+            <argument name="eavOptionManagement" xsi:type="object">Cobby\Connector\Model\Entity\Attribute\OptionManagement</argument>
+        </arguments>
+    </type>
+
     <type name="Magento\Catalog\Model\ResourceModel\Product">
         <plugin name="queue_product_plugin_resource" type="Cobby\Connector\Model\Plugin\Catalog\Product"/>
     </type>

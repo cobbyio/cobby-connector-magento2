@@ -252,7 +252,7 @@ class Option implements \Cobby\Connector\Api\CatalogProductAttributeOptionInterf
         foreach ($data as $row) {
             $optionLabels = array();
             $adminLabel = $row['labels']['0']['value'];
-
+            
             foreach ($row['labels'] as $label) {
                 /* @var $optionLabel \Magento\Eav\Api\Data\AttributeOptionLabelInterface */
                 $optionLabel = $this->attrOptionLabelFactory->create();
