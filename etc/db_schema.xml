@@ -1,0 +1,35 @@
+<!--
+  ~ @copyright Copyright (c) 2022 cobby GmbH & Co. KG. All rights reserved.
+  ~ @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0).
+  -->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+<!--InstallSchema.php-->
+    <table name="cobby_connector_queue" resource="default" engine="innodb"
+           comment="Cobby Queue Table">
+        <column xsi:type="int" name="queue_id" unsigned="true" nullable="false" identity="true" comment="Queue Id"/>
+        <column xsi:type="text" name="object_ids" length="16k" nullable="false" comment="Object Ids"/>
+        <column xsi:type="text" name="object_entity" length="255" comment="Object Entity"/>
+        <column xsi:type="text" name="object_action" length="255" nullable="false" comment="Object Action"/>
+        <column xsi:type="text" name="user_name" length="255" comment="User Name"/>
+        <column xsi:type="text" name="context" length="255" comment="Context"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
+        <column xsi:type="text" name="transaction_id" length="255" nullable="true" comment="transaction id"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="queue_id"/>
+        </constraint>
+    </table>
+
+    <!--UpgradeSchema.php-->
+    <table name="cobby_connector_product" resource="default" engine="innodb"
+           comment="Cobby Product Table">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="text" name="hash" length="100" comment="Hash"/>
+        <column xsi:type="timestamp" name="created_at"  comment="Creation Time"/>
+        <column xsi:type="timestamp" name="updated_at"  comment="Update Time"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+    </table>
+</schema>

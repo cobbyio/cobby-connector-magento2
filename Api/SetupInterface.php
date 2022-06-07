@@ -7,7 +7,7 @@
 
 namespace Cobby\Connector\Api;
 
-use Magento\Tests\NamingConvention\true\mixed;
+//use Magento\Tests\NamingConvention\true\mixed;
 
 /**
  *@api
