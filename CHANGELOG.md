@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.1
+- PIM-315 Change db schema to xml for the new Magento marketplace tests 
+---
 ## 2.3.1
 - PIM-177 Fix Magento-API bug. Attribute-Option can now be "0"
 ---
