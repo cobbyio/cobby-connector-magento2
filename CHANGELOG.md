@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.2
+- PIM-351 Bugfix | Fix db_schema.xml to be valid against schema.xsd 
+---
 ## 2.4.1
 - PIM-315 Change db schema to xml for the new Magento marketplace tests 
 ---
