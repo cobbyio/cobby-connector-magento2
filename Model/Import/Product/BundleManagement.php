@@ -30,6 +30,8 @@ class BundleManagement extends AbstractManagement implements \Cobby\Connector\Ap
         'sku_type',
         'shipment_type'
     );
+    
+    private $prodAttrColFac;
 
     /**
      * BundleManagement constructor.
