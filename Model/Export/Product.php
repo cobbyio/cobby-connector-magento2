@@ -330,7 +330,6 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
      */
     protected function _prepareEntityCollection(\Magento\Eav\Model\Entity\Collection\AbstractCollection $collection)
     {
-
         foreach ($this->getAttributeCollection() as $attribute) { //$this->filterAttributeCollection()
             $attrCode = $attribute->getAttributeCode();
             $exportAttrCodes = $this->_getExportAttrCodes();
@@ -339,6 +338,8 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
                 $collection->addAttributeToSelect($attrCode);
             }
         }
+
+        return $collection;
     }
 
     /**

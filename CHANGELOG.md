@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.3
+- PIM-414 Bugfix | Fix PHPStan errors
+---
 ## 2.4.2
 - PIM-351 Bugfix | Fix db_schema.xml to be valid against schema.xsd 
 ---

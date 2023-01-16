@@ -85,7 +85,9 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         $result = $this->getCurrentContext();
         $this->addData($result);
 
-        parent::beforeSave();
+         parent::beforeSave();
+
+         return $this;
     }
 
     private function getCurrentContext()
