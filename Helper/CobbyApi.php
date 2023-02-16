@@ -12,7 +12,7 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * cobby service url
      */
-	const COBBY_API = 'https://api.cobby.mash2.com/';
+	const COBBY_API = 'https://api.cobby.io'; 
 
     /**
      * @var \Cobby\Connector\Helper\Settings
@@ -112,7 +112,7 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
             $request['Method'] = $method;
 
             try {
-                $this->restPost('notify', $request);
+                $this->restPost('magento/notify', $request);
             } catch (\Exception $e) { // Zend_Http_Client_Adapter_Exception
                 $this->_logger->info($e);
             }
