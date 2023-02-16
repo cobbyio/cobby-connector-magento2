@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## 2.4.4
+- new api url
+- support magento 2.2
+---
 ## 2.4.3
 - PIM-414 Bugfix | Fix PHPStan errors
 ---
