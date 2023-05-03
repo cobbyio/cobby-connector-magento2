@@ -8,7 +8,7 @@ This extension for Magento makes your catalog management much more efficient and
 
 # Compatibility
 
-- Magento >= 2.1
+- Magento >= 2.3
 - Supports both Magento Opensource (Community) and Magento Commerce (Enterprise)
 
 Note: If your store is running under Magento version 1.x, please check cobby for the [Magento 1 extension](https://github.com/cobbyio/cobby-connector-magento).
