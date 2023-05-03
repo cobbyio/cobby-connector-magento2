@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.5
+- remove support magento 2.2
+---
 ## 2.4.4
 - new api url
 - support magento 2.2
