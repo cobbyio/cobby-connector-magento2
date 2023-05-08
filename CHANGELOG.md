@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.6
+- Bugfix | change multiple skus
+
 ## 2.4.5
 - remove support magento 2.2
 ---
