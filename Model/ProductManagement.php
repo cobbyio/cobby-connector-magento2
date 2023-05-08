@@ -106,14 +106,14 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
         $rows = $this->jsonHelper->jsonDecode($jsonData);
 
         $result = array();
-        $product = $this->productFactory->create();
-
+        
         foreach($rows as $row) {
             $productId = $row['product_id'];
             $sku = $row['sku'];
             $changed = false;
 
             if (!empty($sku)) {
+                $product = $this->productFactory->create();
                 $product->setData('store_id', \Magento\Store\Model\Store::DEFAULT_STORE_ID);
                 $product->load($productId);
 
