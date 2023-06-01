@@ -7,9 +7,6 @@
 
 namespace Cobby\Connector\Helper;
 
-use Laminas\Http\Request;
-use Magento\Framework\HTTP\LaminasClientFactory;
-
 class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
@@ -23,9 +20,9 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
     private $settings;
 
     /**
-     * @var LaminasClientFactory
+     * @var \Magento\Framework\HTTP\Client\Curl
      */
-    protected $httpClientFactory;
+    protected $curl;
 
     /**
      * @var \Magento\Framework\App\ProductMetadata
@@ -37,18 +34,18 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Cobby\Connector\Helper\Settings $settings
-     * @param LaminasClientFactory $httpClientFactory
+     * @param \Magento\Framework\HTTP\Client\Curl $curl,
      * @param \Magento\Framework\App\ProductMetadata $productMetadata
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Cobby\Connector\Helper\Settings $settings,
-        LaminasClientFactory $httpClientFactory,
+        \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Framework\App\ProductMetadata $productMetadata
     ) {
         parent::__construct($context);
         $this->settings = $settings;
-        $this->httpClientFactory = $httpClientFactory;
+        $this->curl = $curl;
         $this->productMetadata = $productMetadata;
     }
 
@@ -78,23 +75,20 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function restPost($method, array $data)
     {
-        $httpClient = $this->httpClientFactory->create();
-        $httpClient->setUri(self::COBBY_API .'/'. $method);
-        $httpClient->setOptions(['maxredirects' => 0, 'timeout' => 60]);
-        $httpClient->setMethod(Request::METHOD_POST);
-        $httpClient->setParameterPost($data);
+        $apiUrl = self::COBBY_API . '/' . $method;
+        $this->curl->post($apiUrl, $data);
+        $this->curl->setOptions([
+            CURLOPT_MAXREDIRS => 0,
+            CURLOPT_TIMEOUT => 60
+        ]);
 
-        $response = $httpClient->send();
-
-        if (!$response->isSuccess()) {
-            $errorRestResultAsObject = json_decode($response->getBody());
+        if ($this->curl->getStatus() != 200 && $this->curl->getStatus() != 201) {
+            $errorRestResultAsObject = json_decode($this->curl->getBody());
             if ($errorRestResultAsObject != null) { // check if response is right
                 throw new \Exception($errorRestResultAsObject->message);
             }
         }
-        $restResultAsObject = json_decode($response->getBody());
-
-        return $restResultAsObject;
+        return json_decode($this->curl->getBody());
     }
 
     /**
@@ -114,7 +108,7 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
 
             try {
                 $this->restPost('magento/notify', $request);
-            } catch (\Exception $e) {
+            } catch (\Exception $e) { // Zend_Http_Client_Adapter_Exception
                 $this->_logger->info($e);
             }
         }
