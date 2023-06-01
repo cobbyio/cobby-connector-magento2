@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.8
+- Bugfix | DEV-72 replaced deprecated ZendHttpClient with CurlClient
+
 ## 2.4.7
 - Bugfix | fixed fixed Zend Http Client is deprecated in Magento 2.4.6
 
