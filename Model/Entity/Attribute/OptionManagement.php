@@ -54,8 +54,9 @@ class OptionManagement extends \Magento\Eav\Model\Entity\Attribute\OptionManagem
         if (!isset($label) && strlen($label) == 0) {
             throw new InputException(__('The attribute option label is empty. Enter the value and try again.'));
         }
-    
-        if ($attribute->getSource()->getOptionId($label) !== null) {
+
+        $optionIdByLabel = $this->getOptionIdByLabel($attribute->getSource(), $label);
+        if ($optionIdByLabel !== null) {
             throw new InputException(
                 __(
                     'Admin store attribute option label "%1" is already exists.',
@@ -68,6 +69,39 @@ class OptionManagement extends \Magento\Eav\Model\Entity\Attribute\OptionManagem
         $this->saveOption($attribute, $option, $optionId);
     
         return $this->retrieveOptionId($attribute, $option);
+    }
+
+    /**
+     * Get option id by label
+     *
+     * @param $attribute
+     * @param string $label
+     * @return null|string
+     */
+    public function getOptionIdByLabel($attribute, $label)
+    {
+        foreach ($attribute->getAllOptions() as $option) {
+            if ($this->mbStrcasecmp($option['label'], $label) == 0) {
+                return $option['value'];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Multibyte support strcasecmp function version.
+     *
+     * @param string $str1
+     * @param string $str2
+     * @return int
+     */
+    private function mbStrcasecmp($str1, $str2)
+    {
+        $encoding = mb_internal_encoding();
+        return strcmp(
+            mb_strtoupper($str1, $encoding),
+            mb_strtoupper($str2, $encoding)
+        );
     }
 
     /**
