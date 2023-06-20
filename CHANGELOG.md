@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.9
+- Bugfix | Improved error message for show duplicate attributes options
+
 ## 2.4.8
 - Bugfix | DEV-72 replaced deprecated ZendHttpClient with CurlClient
 
