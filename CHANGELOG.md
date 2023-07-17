@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.10
+- Bugfix | fixed attribute options translations
+
 ## 2.4.9
 - Bugfix | Improved error message for show duplicate attributes options
 

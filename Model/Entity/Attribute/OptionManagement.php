@@ -55,17 +55,20 @@ class OptionManagement extends \Magento\Eav\Model\Entity\Attribute\OptionManagem
             throw new InputException(__('The attribute option label is empty. Enter the value and try again.'));
         }
 
-        $optionIdByLabel = $this->getOptionIdByLabel($attribute->getSource(), $label);
-        if ($optionIdByLabel !== null) {
-            throw new InputException(
-                __(
-                    'Admin store attribute option label "%1" is already exists.',
-                    $option->getLabel()
-                )
-            );
+        $optionId = trim($option->getValue() ?: '');
+        if (empty($optionId)) {
+            $optionIdByLabel = $this->getOptionIdByLabel($attribute->getSource(), $label);
+            if ($optionIdByLabel !== null) {
+                throw new InputException(
+                    __(
+                        'Admin store attribute option label "%1" is already exists.',
+                        $option->getLabel()
+                    )
+                );
+            }
+            $optionId = $this->getNewOptionId($option);
         }
-    
-        $optionId = $this->getNewOptionId($option);
+
         $this->saveOption($attribute, $option, $optionId);
     
         return $this->retrieveOptionId($attribute, $option);
