@@ -99,7 +99,7 @@ class ConfigurableManagement extends AbstractManagement implements \Cobby\Connec
                 foreach ($attribute->getSource()->getAllOptions(false) as $option) {
                     $value = is_array($option['value']) ? $option['value'] : array($option);
                     foreach ($value as $innerOption) {
-                        if (strlen($innerOption['value'])) { // skip ' -- Please Select -- ' option
+                        if (!empty($innerOption['value'] ?: null)) { // skip ' -- Please Select -- ' option
                             $options[strtolower($innerOption[$index])] = $innerOption['value'];
                         }
                     }
