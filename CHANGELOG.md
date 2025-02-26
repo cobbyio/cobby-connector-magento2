@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.11
+- Bugfix | improve php8 compatibility
+
 ## 2.4.10
 - Bugfix | fixed attribute options translations
 
