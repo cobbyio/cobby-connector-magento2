@@ -244,6 +244,9 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
     protected function initSkus($filterSkus)
     {
         $columns = array('entity_id', 'type_id', 'attribute_set_id', 'sku');
+        if ($this->getProductEntityLinkField() != $this->getProductIdentifierField()) {
+            $columns[] = $this->getProductEntityLinkField();
+        }
         $productTable = $this->resourceModel->getTableName('catalog_product_entity');
 
         $select = $this->connection->select()
@@ -258,6 +261,7 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
                 'attr_set_id'    => $info['attribute_set_id'],
                 'entity_id'      => $info['entity_id'],
 //                'supported_type' => isset($this->_productTypeModels[$typeId]) //TODO: M2
+                $this->getProductEntityLinkField() => $info[$this->getProductEntityLinkField()],
             );
         }
 
@@ -376,6 +380,7 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
 //
 //        $sku = $rowData[self::COL_SKU];
 //
+        $linkField = $this->getProductEntityLinkField();
         if (isset($this->oldSkus[$sku])) {
             // can we get all necessary data from existent DB product?
             // check for supported type of existing product
@@ -385,6 +390,8 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
                     'type_id' => $this->oldSkus[$sku]['type_id'],
                     'attr_set_id' => $this->oldSkus[$sku]['attr_set_id'],
                     'attr_set_code' => $this->_attrSetIdToName[$this->oldSkus[$sku]['attr_set_id']],
+                    $linkField => $this->oldSkus[$sku][$linkField],
+
                 );
             }// else {
 //                $this->addRowError(ValidatorInterface::ERROR_TYPE_UNSUPPORTED, $rowNum);
@@ -735,68 +742,38 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
      */
     protected function saveProductAttributes(array $attributesData)
     {
+        $linkField = $this->getProductEntityLinkField();
         foreach ($attributesData as $tableName => $skuData) {
             $tableData = [];
             foreach ($skuData as $sku => $attributes) {
-                $productId = $this->newSkus[$sku]['entity_id'];
-                $linkId = $this->connection->fetchOne(
-                    $this->connection->select()
-                        ->from($this->resourceModel->getTableName('catalog_product_entity'))
-                        ->where('entity_id = ?', $productId)
-                        ->columns($this->getProductEntityLinkField())
-                );
-
+                $linkId = $this->newSkus[$sku][$linkField];
                 foreach ($attributes as $attributeId => $storeValues) {
                     foreach ($storeValues as $storeId => $storeValue) {
-                        if ( $storeValue == self::COBBY_DEFAULT) {
+                        if ($storeValue == self::COBBY_DEFAULT) {
                             //TODO: evtl delete mit mehreren daten auf einmal
-                            if ($storeId != \Magento\Store\Model\Store::DEFAULT_STORE_ID){
+                            if ($storeId != \Magento\Store\Model\Store::DEFAULT_STORE_ID) {
                                 $this->connection->delete($tableName, array(
-                                    $this->getProductEntityLinkField().'=?' => $linkId,
-                                    'attribute_id=?'   => (int) $attributeId,
-                                    'store_id=?'       => (int) $storeId,
+                                    $this->getProductEntityLinkField() . '=?' => $linkId,
+                                    'attribute_id=?' => (int)$attributeId,
+                                    'store_id=?' => (int)$storeId,
                                 ));
                             }
-                        }else {
+                        } else {
                             $tableData[] = [
-                                $this->getProductEntityLinkField() => $linkId,
-                                'attribute_id'      => $attributeId,
-                                'store_id'          => $storeId,
-                                'value'             => $storeValue,
+                                $linkField => $linkId,
+                                'attribute_id' => $attributeId,
+                                'store_id' => $storeId,
+                                'value' => $storeValue,
                             ];
                         }
                     }
-//                    /*
-//                    If the store based values are not provided for a particular store,
-//                    we default to the default scope values.
-//                    In this case, remove all the existing store based values stored in the table.
-//                    */
-//                    $where[] = $this->connection->quoteInto(
-//                        '(store_id NOT IN (?)',
-//                        array_keys($storeValues))
-//                        . $this->connection->quoteInto(
-//                            ' AND attribute_id = ?',
-//                            $attributeId
-//                        ) . $this->connection->quoteInto(
-//                            ' AND entity_id = ?)',
-//                            $productId
-//                        );
-//                    if (count($where) >= \Magento\CatalogImportExport\Model\Import\Product::ATTRIBUTE_DELETE_BUNCH) {
-//                        $this->connection->delete($tableName, implode(' OR ', $where));
-//                        $where = [];
-//                    }
                 }
             }
-//            if (!empty($where)) {
-//                $this->connection->delete($tableName, implode(' OR ', $where));
-//            }
 
-            if($tableData) {
+            if ($tableData) {
                 $this->connection->insertOnDuplicate($tableName, $tableData, ['value']);
             }
         }
         return $this;
     }
-
-
 }
