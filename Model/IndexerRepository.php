@@ -35,6 +35,11 @@ class IndexerRepository implements \Cobby\Connector\Api\IndexerRepositoryInterfa
     private $categoryProductProcessor;
 
     /**
+     * @var \Magento\Catalog\Model\Indexer\Product\Category
+     */
+    private $productCategoryProcessor;
+
+    /**
      * @var \Magento\Catalog\Model\Indexer\Product\Price
      */
     private $priceProductProcessor;
@@ -45,6 +50,7 @@ class IndexerRepository implements \Cobby\Connector\Api\IndexerRepositoryInterfa
     private $stockProductProcessor;
 
     private $indexerCollectionFactory;
+
 
     /**
      * @param \Magento\Indexer\Model\Indexer\CollectionFactory $indexerCollectionFactory
@@ -60,6 +66,7 @@ class IndexerRepository implements \Cobby\Connector\Api\IndexerRepositoryInterfa
         \Magento\Indexer\Model\Indexer\CollectionFactory $indexerCollectionFactory,
         \Magento\Catalog\Model\Indexer\Product\Flat\Processor $productFlatProcessor,
         \Magento\Catalog\Model\Indexer\Category\Product $categoryProductProcessor,
+        \Magento\Catalog\Model\Indexer\Product\Category $productCategoryProcessor,
         \Magento\Catalog\Model\Indexer\Product\Price $priceProductProcessor,
         \Magento\CatalogInventory\Model\Indexer\Stock $stockProductProcessor,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
@@ -72,6 +79,7 @@ class IndexerRepository implements \Cobby\Connector\Api\IndexerRepositoryInterfa
         $this->productFlatState = $productFlatState;
         $this->categoryFlatState = $categoryFlatState;
         $this->categoryProductProcessor = $categoryProductProcessor;
+        $this->productCategoryProcessor = $productCategoryProcessor;
         $this->priceProductProcessor = $priceProductProcessor;
         $this->stockProductProcessor = $stockProductProcessor;
         $this->indexerCollectionFactory = $indexerCollectionFactory;
@@ -134,6 +142,7 @@ class IndexerRepository implements \Cobby\Connector\Api\IndexerRepositoryInterfa
                 break;
             case 'catalog_category_product':
                 $this->categoryProductProcessor->executeList($productIds);
+                $this->productCategoryProcessor->executeList($productIds);
                 $result = true;
                 break;
             case 'catalog_product_price':
