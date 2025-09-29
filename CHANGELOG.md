@@ -1,10 +1,10 @@
 # CHANGE LOG
 
+## 2.4.13
+- Bugfix | OD-2287 Fix issue saving attributes in Adobe Commerce for products with scheduled changes
+
 ## 2.4.12
 - updated description
-
-## 2.4.11
-- Bugfix | improve php8 compatibility
 
 ## 2.4.10
 - Bugfix | fixed attribute options translations
