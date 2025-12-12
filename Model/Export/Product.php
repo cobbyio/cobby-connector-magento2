@@ -26,6 +26,7 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     const COL_SKU = '_sku';
     const COL_HASH = '_hash';
     const COL_MAGENTO_ID = '_entity_id';
+    const COL_PRODUCT_LINKED_ID = '_product_link_id';
     const COL_TYPE = '_type';
     const COL_ATTR_SET = '_attribute_set';
     const COL_ATTRIBUTES = '_attributes';
@@ -494,32 +495,37 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     /**
      * Prepare products media gallery
      *
-     * @param  array $productIds
+     * @param  int[] $productLinkIds
      * @return array
      */
-    protected function prepareMediaGallery(array $productIds, $storeIds)
+    protected function prepareMediaGallery(array $productLinkIds, $storeIds)
     {
-        $result = $this->_initResult($productIds);
+        $result = $this->_initResult($productLinkIds);
 
-        $productEntityLinkField = $this->getProductEntityLinkField();
+        $productEntityJoinField = $this->getProductEntityLinkField();
 
-        $select = $this->connection->select()
-            ->from(
-                array('mgv' => $this->resourceModel->getTableName('catalog_product_entity_media_gallery_value')),
-                array('mgv.' . $productEntityLinkField, 'mgv.store_id', 'mgv.label', 'mgv.position', 'mgv.disabled')
-            )->joinLeft(
-                array('mg' => $this->resourceModel->getTableName('catalog_product_entity_media_gallery')),
-                '(mg.value_id = mgv.value_id)',
-                array('mg.attribute_id', 'filename' => 'mg.value', 'mg.media_type')
-            )
-            ->where('mgv.' . $productEntityLinkField . ' IN (?) ', $productIds);
+        $select = $this->connection->select()->from(
+            array('mgvte' => $this->resourceModel->getTableName('catalog_product_entity_media_gallery_value_to_entity')),
+            array("mgvte.$productEntityJoinField",'mgvte.value_id')
+        )->joinLeft(
+            array('mg' => $this->resourceModel->getTableName('catalog_product_entity_media_gallery')),
+            '(mg.value_id = mgvte.value_id)',
+            array('mg.attribute_id','filename' => 'mg.value', 'mg.media_type')
+        )->joinLeft(
+            array('mgv' => $this->resourceModel->getTableName('catalog_product_entity_media_gallery_value')),
+            "(mg.value_id = mgv.value_id) and (mgvte.$productEntityJoinField = mgv.$productEntityJoinField)",
+            array('mgv.label', 'mgv.position','mgv.disabled','mgv.store_id')
+        )->where(
+            "mgvte.$productEntityJoinField IN (?)",
+            $productLinkIds
+        );
 
         $stmt = $this->connection->query($select);
         while ($mediaRow = $stmt->fetch()) {
-            $productId = $mediaRow[$productEntityLinkField];
+            $productLinkId = $mediaRow[$productEntityJoinField];
             $storeId = isset($mediaRow['store_id']) ? (int)$mediaRow['store_id'] : 0;
             if (in_array($storeId, $storeIds)) {
-                $result[$productId][] = array(
+                $result[$productLinkId][] = array(
                     'store_id' => $mediaRow['store_id'],
                     'attribute_id' => $mediaRow['attribute_id'],
                     'filename' => $mediaRow['filename'],
@@ -830,13 +836,12 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     public function export($jsonData)
     {
         $filterProductParams = $this->jsonHelper->jsonDecode($jsonData);
-        $result = array();
-
-        $filterChangedProducts = $this->filterChangedProducts($filterProductParams);
 
         $this->eventManager->dispatch('cobby_catalog_product_export_before',
             array('products' => $filterProductParams));
 
+        $result = array();
+        $filterChangedProducts = $this->filterChangedProducts($filterProductParams);
         $unchangedProducts = array_diff_key($filterProductParams, $filterChangedProducts);
 
         foreach ($unchangedProducts as $productId => $hash) {
@@ -851,12 +856,15 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
             ->addWebsiteNamesToResult();
 
         $skuProductIdMap = array();
+        $productLinkIds = [];
 
         foreach ($collection as $itemId => $item) {
-
+            $productLinkId =$item->getData($this->getProductEntityLinkField());
+            $productLinkIds[] = $productLinkId;
             $result[$itemId] = array(
                 self::COL_SKU => $item->getSku(),
                 self::COL_MAGENTO_ID => $itemId,
+                self::COL_PRODUCT_LINKED_ID => $productLinkId,
                 self::COL_HASH => $filterChangedProducts[$itemId],
                 self::COL_ATTR_SET => $item->getAttributeSetId(),
                 self::COL_TYPE => $item->getTypeId(),
@@ -884,17 +892,19 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
         $productMultiSources = $this->prepareCatalogInventorySources($productIds, $skuProductIdMap);
         $productLinks = $this->prepareLinks($productIds);
         $productTierPrice = $this->prepareTierPrices($productIds);
-        $productImages = $this->prepareMediaGallery($productIds, array_keys($this->storeIdToCode));
+        $productImages = $this->prepareMediaGallery($productLinkIds, array_keys($this->storeIdToCode));
         $productCustomOptions = $this->prepareCustomOptions($productIds);
         $productBundleOptions = $this->prepareBundleOptions($productIds);
 
         foreach ($productIds as $productId) {
+            $productLinkId = $result[$productId][self::COL_PRODUCT_LINKED_ID];
+
             $result[$productId][self::COL_ATTRIBUTES] = $productAttributes[$productId];
             $result[$productId][self::COL_INVENTORY] = $productInventory[$productId];
             $result[$productId][self::COL_INVENTORY_SOURCES] = $productMultiSources[$productId];
             $result[$productId][self::COL_LINKS] = $productLinks[$productId];
             $result[$productId][self::COL_TIER_PRICE] = $productTierPrice[$productId];
-            $result[$productId][self::COL_IMAGE_GALLERY] = $productImages[$productId];
+            $result[$productId][self::COL_IMAGE_GALLERY] = $productImages[$productLinkId];
             $result[$productId][self::COL_CUSTOM_OPTIONS] = $productCustomOptions[$productId];
             $result[$productId][self::COL_BUNDLE_OPTIONS] = $productBundleOptions[$productId];
         }
