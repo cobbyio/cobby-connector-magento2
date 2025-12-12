@@ -25,6 +25,8 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
 
     private $uploadMediaFiles = array();
 
+    private $linkIdCache = [];
+
     /**
      * @var \Magento\Framework\Filesystem\Directory\WriteInterface
      */
@@ -109,6 +111,11 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     protected $importDir;
 
     /**
+     * @var \Magento\Catalog\Model\ProductFactory
+     */
+    protected $productFactory;
+
+    /**
      * constructor.
      * @param \Magento\Framework\App\ResourceConnection $resourceModel
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
@@ -124,6 +131,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
      * @param \Magento\Framework\Filesystem\Io\File $fileHelper
      * @param \Magento\Catalog\Helper\Image $imageHelper
      * @param \Magento\Framework\Image\AdapterFactory $imageAdapterFactory
+     * @param \Magento\Catalog\Model\ProductFactory $productFactory
      */
     public function __construct(
         \Magento\Framework\App\ResourceConnection $resourceModel,
@@ -139,7 +147,8 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         \Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory $attributeCollectionFactory,
         \Magento\Framework\Filesystem\Io\File $fileHelper,
         \Magento\Catalog\Helper\Image $imageHelper,
-        \Magento\Framework\Image\AdapterFactory $imageAdapterFactory
+        \Magento\Framework\Image\AdapterFactory $imageAdapterFactory,
+        \Magento\Catalog\Model\ProductFactory $productFactory
     )
     {
         parent::__construct($resourceModel, $productCollectionFactory, $eventManager, $resourceHelper, $product);
@@ -155,6 +164,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         $this->imageHelper = $imageHelper;
         $this->imageAdapter = $imageAdapterFactory->create();
         $this->importDir = $this->mediaDirectory->getAbsolutePath('pub/media/import');
+        $this->productFactory = $productFactory;
     }
 
     private function getStoreIds()
@@ -680,14 +690,11 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
 
     public function getLinkId($productId)
     {
-        $linkId = $this->connection->fetchOne(
-            $this->connection->select()
-                ->from($this->resourceModel->getTableName('catalog_product_entity'))
-                ->where('entity_id = ?', $productId)
-                ->columns($this->getProductEntityLinkField())
-        );
-
-        return $linkId;
+        if (!isset($this->linkIdCache[$productId])) {
+            $product = $this->productFactory->create()->load($productId);
+            $this->linkIdCache[$productId] = $product->getData($this->getProductEntityLinkField());
+        }
+        return $this->linkIdCache[$productId];
     }
 
     protected function getMediaGallery(array $productIds, $storeIds)

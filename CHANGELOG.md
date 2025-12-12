@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.14
+- Bugfix | OD-2910  Fix issue loading/saving images in Adobe Commerce for products with scheduled changes
+
 ## 2.4.13
 - Bugfix | OD-2287 Fix issue saving attributes in Adobe Commerce for products with scheduled changes
 
