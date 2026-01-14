@@ -685,14 +685,17 @@ class ProductManagement extends AbstractManagement// \Magento\CatalogImportExpor
             $this->connection->insertMultiple($entityTable, $insertRows);
 
 
-            $newProducts = $this->connection->fetchPairs(
+            $linkField = $this->getProductEntityLinkField();
+            $newProducts = $this->connection->fetchAll(
                 $this->connection->select()
-                ->from($entityTable, ['sku', 'entity_id'])
+                ->from($entityTable, ['sku', 'entity_id', $linkField])
                 ->where('sku IN (?)', array_keys($entityRowsIn))
             );
-            foreach ($newProducts as $sku => $newId) {
-                // fill up entity_id for new products
-                $this->newSkus[$sku]['entity_id'] = $newId;
+            foreach ($newProducts as $row) {
+                $sku = $row['sku'];
+                // fill up entity_id and link field for new products
+                $this->newSkus[$sku]['entity_id'] = $row['entity_id'];
+                $this->newSkus[$sku][$linkField] = $row[$linkField];
             }
         }
         return $this;

@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.15
+- Bugfix | OD-3031 Add Magento Content Staging support for configurable products
+
 ## 2.4.14
 - Bugfix | OD-2910  Fix issue loading/saving images in Adobe Commerce for products with scheduled changes
 

@@ -170,4 +170,33 @@ abstract class AbstractManagement extends \Cobby\Connector\Model\Import\Abstract
         }
         return $this->productEntityIdentifierField;
     }
+
+    /**
+     * Get mapping from entity_id to link field (row_id for staging, entity_id otherwise)
+     * Uses collection which is staging-aware and returns correct active row_id
+     *
+     * @param array $entityIds
+     * @return array
+     */
+    protected function getEntityIdToLinkFieldMap(array $entityIds): array
+    {
+        if (empty($entityIds)) {
+            return [];
+        }
+
+        $linkField = $this->getProductEntityLinkField();
+        if ($linkField === 'entity_id') {
+            return array_combine($entityIds, $entityIds);
+        }
+
+        // Use collection - it's staging-aware and returns correct active row_id
+        $collection = $this->productCollectionFactory->create();
+        $collection->addAttributeToFilter('entity_id', ['in' => $entityIds]);
+
+        $map = [];
+        foreach ($collection as $product) {
+            $map[$product->getEntityId()] = $product->getData($linkField);
+        }
+        return $map;
+    }
 }
