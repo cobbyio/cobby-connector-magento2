@@ -7,6 +7,7 @@
 
 namespace Cobby\Connector\Model\Export;
 
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ConfigurableProductType;
 use Magento\Framework\App\ResourceConnection;
 use \Magento\Store\Model\Store;
 
@@ -659,17 +660,23 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     protected function prepareConfigurableProductLinkedIds(array $productIds)
     {
         $result = array();
+        $productEntityLinkField = $this->getProductEntityLinkField();
         $select = $this->connection->select()
             ->from(
+                array('e' => $this->resourceModel->getTableName('catalog_product_entity')),
+                array('parent_id' => 'e.entity_id')
+            )
+            ->join(
                 array('cpsl' => $this->resourceModel->getTableName('catalog_product_super_link')),
-                array('cpsl.parent_id', 'cpe.sku', 'cpsl.product_id')
+                '(cpsl.parent_id = e.' . $productEntityLinkField . ')',
+                array('cpsl.product_id')
             )
             ->joinLeft(
                 array('cpe' => $this->resourceModel->getTableName('catalog_product_entity')),
                 '(cpe.entity_id = cpsl.product_id)',
-                array()
+                array('sku' => 'cpe.sku')
             )
-            ->where('parent_id IN (?)', $productIds);
+            ->where('e.entity_id IN (?)', $productIds);
         $stmt = $this->connection->query($select);
         while ($row = $stmt->fetch()) {
             $result[$row['parent_id']][$row['product_id']] = $row['sku'];
@@ -681,17 +688,23 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     protected function prepareConfigurableProductAttributes($productIds)
     {
         $result = array();
+        $productEntityLinkField = $this->getProductEntityLinkField();
         $select = $this->connection->select()
             ->from(
+                array('e' => $this->resourceModel->getTableName('catalog_product_entity')),
+                array('product_id' => 'e.entity_id')
+            )
+            ->join(
                 array('attr' => $this->resourceModel->getTableName('catalog_product_super_attribute')),
-                array('attr.product_id', 'attr.attribute_id', 'attr.product_super_attribute_id', 'attr.position')
+                '(attr.product_id = e.' . $productEntityLinkField . ')',
+                array('attr.attribute_id', 'attr.product_super_attribute_id', 'attr.position')
             )
             ->join(
                 array('ea' => $this->resourceModel->getTableName('eav_attribute')),
                 '(ea.attribute_id = attr.attribute_id)',
                 array('ea.attribute_code', 'ea.frontend_label')
             )
-            ->where('attr.product_id IN (?)', $productIds)
+            ->where('e.entity_id IN (?)', $productIds)
             ->order('attr.position');
         $stmt = $this->connection->query($select);
         while ($row = $stmt->fetch()) {
@@ -707,17 +720,23 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
     protected function prepareConfigurableProductLabels($productIds)
     {
         $result = array();
+        $productEntityLinkField = $this->getProductEntityLinkField();
         $select = $this->connection->select()
             ->from(
+                array('e' => $this->resourceModel->getTableName('catalog_product_entity')),
+                array('product_id' => 'e.entity_id')
+            )
+            ->join(
                 array('attr' => $this->resourceModel->getTableName('catalog_product_super_attribute')),
-                array('attr.product_id', 'attr.attribute_id', 'label.value', 'label.store_id')
+                '(attr.product_id = e.' . $productEntityLinkField . ')',
+                array('attr.attribute_id')
             )
             ->join(
                 array('label' => $this->resourceModel->getTableName('catalog_product_super_attribute_label')),
                 '(label.product_super_attribute_id = attr.product_super_attribute_id)',
-                array('label.use_default')
+                array('label.value', 'label.store_id', 'label.use_default')
             )
-            ->where('attr.product_id IN (?)', $productIds);
+            ->where('e.entity_id IN (?)', $productIds);
         $stmt = $this->connection->query($select);
         while ($row = $stmt->fetch()) {
             $productId = $row['product_id'];
@@ -784,21 +803,34 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
         }
 
         $selectSelections = $this->connection->select()
-            ->from(array('s' => $resource->getTableName('catalog_product_bundle_selection')))
-            ->joinLeft(array('p' => $resource->getTableName('catalog_product_bundle_selection_price')), '(s.selection_id = p.selection_id)',
-                array('website_id' => 'website_id', 'website_price_type' => 'selection_price_type', 'website_price_value' => 'selection_price_value'))
-            ->where('s.parent_product_id IN (?)', $productIds);
+            ->from(
+                array('e' => $resource->getTableName('catalog_product_entity')),
+                array('product_id' => 'e.entity_id')
+            )
+            ->join(
+                array('s' => $resource->getTableName('catalog_product_bundle_selection')),
+                '(s.parent_product_id = e.' . $linkField . ')',
+                array('s.selection_id', 's.option_id', 'assigned_product_id' => 's.product_id', 's.position',
+                      's.is_default', 's.selection_qty', 's.selection_can_change_qty',
+                      's.selection_price_type', 's.selection_price_value')
+            )
+            ->joinLeft(
+                array('p' => $resource->getTableName('catalog_product_bundle_selection_price')),
+                '(s.selection_id = p.selection_id)',
+                array('website_id' => 'website_id', 'website_price_type' => 'selection_price_type', 'website_price_value' => 'selection_price_value')
+            )
+            ->where('e.entity_id IN (?)', $productIds);
 
         $querySelections = $this->connection->query($selectSelections);
         while ($row = $querySelections->fetch()) {
             $optionId = $row['option_id'];
-            $productId = $row['parent_product_id'];
+            $productId = $row['product_id'];
             $selectionId = $row['selection_id'];
 
             if (!isset($bundleOptions[$productId][$optionId][$selectionId])) {
                 $bundleOptions[$productId][$optionId]['selections'][$selectionId] = array(
                     'selection_id' => $selectionId,
-                    'assigned_product_id' => $row['product_id'],
+                    'assigned_product_id' => $row['assigned_product_id'],
                     'position' => $row['position'],
                     'is_default' => $row['is_default'],
                     'qty' => $row['selection_qty'],

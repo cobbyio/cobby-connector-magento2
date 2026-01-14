@@ -179,6 +179,9 @@ class ConfigurableManagement extends AbstractManagement implements \Cobby\Connec
             }
         }
 
+        // Get entity_id to row_id mapping for staging support
+        $entityToLinkMap = $this->getEntityIdToLinkFieldMap($existingProductIds);
+
         $importProductData = array(
             'attributes' => array(),
             'labels'     => array(),
@@ -215,18 +218,18 @@ class ConfigurableManagement extends AbstractManagement implements \Cobby\Connec
 
             foreach ($validProductSuperData['associated_ids'] as $associatedId) {
                 $importProductData['super_link'][] = array(
-                    'product_id' => $associatedId,
-                    'parent_id' => $productId
+                    'product_id' => $associatedId,  // child uses entity_id
+                    'parent_id' => $entityToLinkMap[$productId]  // parent uses row_id
                 );
 
                 $importProductData['relation'][] = array(
-                    'parent_id' => $productId,
-                    'child_id' => $associatedId
+                    'parent_id' => $entityToLinkMap[$productId],  // parent uses row_id
+                    'child_id' => $associatedId  // child uses entity_id
                 );
             }
         }
 
-        $this->saveData($importProductData);
+        $this->saveData($importProductData, $entityToLinkMap);
 
         $this->touchProducts($productIds);
 
@@ -234,24 +237,30 @@ class ConfigurableManagement extends AbstractManagement implements \Cobby\Connec
         return $importProductData;
     }
 
-    protected function saveData($importProductData)
+    protected function saveData($importProductData, $entityToLinkMap)
     {
         $mainTable       = $this->resourceModel->getTableName('catalog_product_super_attribute');
         $labelTable      = $this->resourceModel->getTableName('catalog_product_super_attribute_label');
         $linkTable       = $this->resourceModel->getTableName('catalog_product_super_link');
         $relationTable   = $this->resourceModel->getTableName('catalog_product_relation');
 
-        //remove old
-        $quoted = $this->connection->quoteInto('IN (?)', array_keys($importProductData['attributes']));
-        $this->connection->delete($mainTable, "product_id {$quoted}");
-        $this->connection->delete($linkTable, "parent_id {$quoted}");
-        $this->connection->delete($relationTable, "parent_id {$quoted}");
+        // Convert entity_ids to row_ids for staging support
+        $linkIds = array_map(function($entityId) use ($entityToLinkMap) {
+            return $entityToLinkMap[$entityId];
+        }, array_keys($importProductData['attributes']));
+
+        //remove old - use row_id for parent_id in all tables
+        $quotedLinkIds = $this->connection->quoteInto('IN (?)', $linkIds);
+        $this->connection->delete($mainTable, "product_id {$quotedLinkIds}");
+        $this->connection->delete($linkTable, "parent_id {$quotedLinkIds}");
+        $this->connection->delete($relationTable, "parent_id {$quotedLinkIds}");
 
         $mainData = array();
 
         foreach ($importProductData['attributes'] as $productId => $attributesData) {
+            $linkId = $entityToLinkMap[$productId];  // Use row_id for staging support
             foreach ($attributesData as $attrId => $row) {
-                $row['product_id']   = $productId;
+                $row['product_id']   = $linkId;
                 $row['attribute_id'] = $attrId;
                 $mainData[]          = $row;
             }
