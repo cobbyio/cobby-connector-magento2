@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 2.4.16
+- Bugfix | fix nullable type declarations for php 8.4 - thanks [netzkollektiv](https://github.com/netzkollektiv)
+
 ## 2.4.15
 - Bugfix | OD-3031 Add Magento Content Staging support for configurable products
 
