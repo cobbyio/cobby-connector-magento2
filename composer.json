@@ -10,10 +10,10 @@
 	"license" : "OSL-3.0",
 	"autoload" : {
 		"files" : [
-			"registration.php"
+			"src/registration.php"
 		],
 		"psr-4" : {
-			"Cobby\\Connector\\" : ""
+			"Cobby\\Connector\\" : "src/"
 		}
 	},
 	"authors" : [{
