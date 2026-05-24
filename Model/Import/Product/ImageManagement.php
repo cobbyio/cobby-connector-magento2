@@ -19,7 +19,9 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
      * Media gallery attribute code.
      */
     const MEDIA_GALLERY_ATTRIBUTE_CODE = 'media_gallery';
+    /** @deprecated */
     const MEDIA_IMPORT_PATH = '/pub/media/import';
+    const MEDIA_RELATIVE_IMPORT_PATH = 'import';
     const ERROR_FILE_NOT_DOWNLOADED = 2;
     const ERROR_FILE_NOT_FOUND = 1;
 
@@ -89,6 +91,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     private $attributeCollectionFactory;
 
     /**
+     * @deprecated
      * @var \Magento\Framework\Filesystem\Io\File
      */
     protected $fileHelper;
@@ -153,7 +156,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     {
         parent::__construct($resourceModel, $productCollectionFactory, $eventManager, $resourceHelper, $product);
         $this->settings = $settings;
-        $this->mediaDirectory = $filesystem->getDirectoryWrite(DirectoryList::ROOT);
+        $this->mediaDirectory = $filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         $this->storeManager = $storeManager;
         $this->resource = $resourceFactory->create();
         $this->uploaderFactory = $uploaderFactory;
@@ -163,7 +166,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         $this->fileHelper = $fileHelper;
         $this->imageHelper = $imageHelper;
         $this->imageAdapter = $imageAdapterFactory->create();
-        $this->importDir = $this->mediaDirectory->getAbsolutePath('pub/media/import');
+        $this->importDir = $this->mediaDirectory->getAbsolutePath(self::MEDIA_RELATIVE_IMPORT_PATH);
         $this->productFactory = $productFactory;
     }
 
@@ -200,8 +203,8 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
      */
     protected function createMediaImportFolder()
     {
-        if (!$this->mediaDirectory->isExist(self::MEDIA_IMPORT_PATH)) {
-            $this->mediaDirectory->create(self::MEDIA_IMPORT_PATH);
+        if (!$this->mediaDirectory->isExist(self::MEDIA_RELATIVE_IMPORT_PATH)) {
+            $this->mediaDirectory->create(self::MEDIA_RELATIVE_IMPORT_PATH);
         }
     }
 
@@ -221,6 +224,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         $this->saveProductImageAttributes($mediaGallery);
 
         $this->touchProducts($productIds);
+        $this->cleanupTemporaryStorage();
 
         $this->eventManager->dispatch('cobby_import_product_media_import_after', array(
             'products' => $productIds));
@@ -242,6 +246,21 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         }
 
         return $result;
+    }
+
+    /**
+     * Remove images kept in temporary folder.
+     *
+     * @return void
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    private function cleanupTemporaryStorage()
+    {
+        foreach (array_keys($this->uploadMediaFiles) as $fileName) {
+            if ($this->mediaDirectory->isFile($this->fileUploader->getTmpDir() . '/' . $fileName)) {
+                $this->mediaDirectory->delete($this->fileUploader->getTmpDir() . '/' . $fileName);
+            }
+        }
     }
 
     private function saveMediaImages(array $mediaGalleryData)
@@ -354,24 +373,30 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     {
         if (strpos($url, 'http') === 0 && strpos($url, '://') !== false) {
             try {
-                $dir = $this->mediaDirectory->getAbsolutePath('pub/media/import');
+                $fullPath = $this->importDir . '/' . basename($fileName);
                 // @codingStandardsIgnoreStart
-                $fileHandle = fopen($dir . '/' . basename($fileName), 'w+');
+                $file = $this->mediaDirectory->openFile($fullPath, 'w+');
+                $file->lock();
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 50);
-                curl_setopt($ch, CURLOPT_FILE, $fileHandle);
-                #curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) use ($file) {
+                    $file->write($data);
+                    return strlen($data);
+                });
 
                 curl_exec($ch);
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
-                fclose($fileHandle);
+                $file->unlock();
+                $file->close();
                 // @codingStandardsIgnoreEnd
 
                 if ($http_code !== 200) {
+                    // delete partially written file
+                    $this->mediaDirectory->delete($fullPath);
                     throw new \Exception();
                 }
-                $this->imageAdapter->validateUploadFile($dir . '/' . $fileName);
+                $this->imageAdapter->validateUploadFile($fullPath);
 
                 return true;
             } catch (\Exception $e) {
@@ -423,7 +448,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
 
                     try {
                         $this->imageAdapter->validateUploadFile($filename);
-                        $this->fileHelper->cp($filename, $destPath);
+                        $this->mediaDirectory->copyFile($filename, $destPath);
                     } catch (\Exception $e) {
                         $importError = true;
                     }
@@ -444,7 +469,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
                     }
                     $imageData['file'] = $uploadedGalleryFiles[$imageData['name']];
 
-                    $filename = $this->fileUploader->getTmpDir() . '/' . $imageData['name'];
+                    $filename = $this->fileUploader->getDestDir() . '/' . trim($imageData['file'], '/');
                     try {
                         // validation of image file
                         $this->imageAdapter->validateUploadFile($filename);
@@ -533,31 +558,19 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         $this->fileUploader->init();
         $this->fileUploader->setAllowRenameFiles(!$this->settings->getOverwriteImages());
 
-        $dirConfig = DirectoryList::getDefaultConfig();
-        $dirAddon = $dirConfig[DirectoryList::MEDIA][DirectoryList::PATH];
-
-        $DS = DIRECTORY_SEPARATOR;
-
-//        if (!empty($this->_parameters[Import::FIELD_NAME_IMG_FILE_DIR])) {
-//            $importDir = $this->_parameters[Import::FIELD_NAME_IMG_FILE_DIR];
-//        } else {
-//            $this->importDir = $dirAddon . $DS . $this->mediaDirectory->getAbsolutePath('import');
-//        }
-
 //        turned off 4 debug
         if (!$this->fileUploader->setTmpDir($this->importDir)) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('cobby: File directory \'%1\' is not readable.', $this->importDir)
             );
         }
-        if (!$this->fileHelper->isWriteable($this->importDir)) {
+        if (!$this->mediaDirectory->isWritable($this->importDir)) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('cobby: File directory \'%1\' is not writable.', $this->importDir)
             );
         }
 
-        $destinationDir = "catalog/product";
-        $destinationPath = $dirAddon . $DS . $this->mediaDirectory->getRelativePath($destinationDir);
+        $destinationPath = $this->mediaDirectory->getAbsolutePath("catalog/product");
 
         $this->mediaDirectory->create($destinationPath);
         if (!$this->fileUploader->setDestDir($destinationPath)) {
