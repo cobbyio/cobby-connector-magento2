@@ -364,7 +364,9 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
 
                 curl_exec($ch);
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
+                if (PHP_VERSION_ID < 80000) {
+                    curl_close($ch);
+                }
                 fclose($fileHandle);
                 // @codingStandardsIgnoreEnd
 
