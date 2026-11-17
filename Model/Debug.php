@@ -38,6 +38,7 @@ class Debug implements \Cobby\Connector\Api\DebugInterface
         $result = array();
 
         foreach ($this->storeManager->getStores(true) as $store) {
+            $typeCount = array();
             foreach ($this->productCollectionFactory->create()->getProductTypeIds() as $productType) {
                 $typeCount[$productType] =  $this->productCollectionFactory
                     ->create()

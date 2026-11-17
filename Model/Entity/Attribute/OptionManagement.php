@@ -51,7 +51,7 @@ class OptionManagement extends \Magento\Eav\Model\Entity\Attribute\OptionManagem
         $attribute = $this->loadAttribute($entityType, (string)$attributeCode);
         
         $label = trim(is_string($option->getLabel()) ? $option->getLabel() : '');
-        if (!isset($label) && strlen($label) == 0) {
+        if (strlen($label) == 0) {
             throw new InputException(__('The attribute option label is empty. Enter the value and try again.'));
         }
 

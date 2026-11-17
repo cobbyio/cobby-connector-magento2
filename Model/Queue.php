@@ -43,6 +43,11 @@ class Queue extends \Magento\Framework\Model\AbstractModel
     private $user;
 
     /**
+     * @var \Magento\User\Model\ResourceModel\User
+     */
+    private $userResource;
+
+    /**
      * Queue constructor.
      * @param \Magento\Framework\Session\SessionManager $sessionManager
      * @param UserContextInterface $userContext
@@ -50,6 +55,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\User\Model\User $user
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
+     * @param \Magento\User\Model\ResourceModel\User $userResource
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param array $data
@@ -61,6 +67,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         \Magento\User\Model\User $user,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
+        \Magento\User\Model\ResourceModel\User $userResource,
         ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -72,6 +79,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         $this->userContext = $userContext;
         $this->compositeUserContext = $compositeUserContext;
         $this->user = $user;
+        $this->userResource = $userResource;
     }
 
     protected function _construct(
@@ -102,7 +110,8 @@ class Queue extends \Magento\Framework\Model\AbstractModel
             $userType = $user ->getUserType();
             if ($userType == UserContextInterface::USER_TYPE_ADMIN){
                 $userId = $this->compositeUserContext->getUserId();
-                $userName = $this->user->load($userId)->getUserName();
+                $this->userResource->load($this->user, $userId);
+                $userName = $this->user->getUserName();
             }
         }
 

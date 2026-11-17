@@ -50,6 +50,8 @@ class GroupedManagement extends AbstractManagement implements \Cobby\Connector\A
     {
         $groupedLinkId = \Magento\GroupedProduct\Model\ResourceModel\Product\Link::LINK_TYPE_GROUPED;
 
+        $attributes = array();
+
         // pre-load attributes parameters
         $select = $this->connection->select()
             ->from($this->resourceModel->getTableName('catalog_product_link_attribute'), array(

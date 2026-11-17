@@ -15,7 +15,7 @@ class Store extends \Cobby\Connector\Model\Plugin\AbstractPlugin
         \Closure $proceed,
         \Magento\Framework\Model\AbstractModel $store
     ) {
-        $storeResource->addCommitCallback(function () use ($store) {
+        $storeResource->addCommitCallback(function () {
             $this->resetHash('store_changed');
         });
 
