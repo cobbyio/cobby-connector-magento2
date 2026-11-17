@@ -14,7 +14,7 @@ class Website extends \Cobby\Connector\Model\Plugin\AbstractPlugin
         \Closure $proceed,
         \Magento\Framework\Model\AbstractModel $website
     ) {
-        $websiteResource->addCommitCallback(function () use ($website) {
+        $websiteResource->addCommitCallback(function () {
            $this->resetHash('website_changed');
         });
 

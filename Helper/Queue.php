@@ -40,6 +40,11 @@ class Queue extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private $cobbySettings;
 
+    /**
+     * @var \Cobby\Connector\Model\ResourceModel\Queue
+     */
+    private $queueResource;
+
     private $mathRandom;
 
     /**
@@ -51,6 +56,7 @@ class Queue extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Framework\Registry $registry
      * @param Settings $cobbySettings
      * @param \Magento\Framework\Math\Random $mathRandom
+     * @param \Cobby\Connector\Model\ResourceModel\Queue $queueResource
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -58,7 +64,8 @@ class Queue extends \Magento\Framework\App\Helper\AbstractHelper
         \Cobby\Connector\Model\QueueFactory $queueFactory,
         \Magento\Framework\Registry $registry,
         \Cobby\Connector\Helper\Settings $cobbySettings,
-        \Magento\Framework\Math\Random $mathRandom
+        \Magento\Framework\Math\Random $mathRandom,
+        \Cobby\Connector\Model\ResourceModel\Queue $queueResource
     ) {
         parent::__construct($context);
         $this->queueFactory = $queueFactory;
@@ -66,6 +73,7 @@ class Queue extends \Magento\Framework\App\Helper\AbstractHelper
         $this->registry = $registry;
         $this->cobbySettings = $cobbySettings;
         $this->mathRandom = $mathRandom;
+        $this->queueResource = $queueResource;
     }
 
     /**
@@ -93,7 +101,7 @@ class Queue extends \Magento\Framework\App\Helper\AbstractHelper
             $queue->setObjectEntity($entity);
             $queue->setObjectAction($action);
             $queue->setTransactionId($transactionId);
-            $queue->save();
+            $this->queueResource->save($queue);
             $result[] = $queue->getId();
         }
 

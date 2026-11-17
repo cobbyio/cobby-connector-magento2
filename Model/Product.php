@@ -20,20 +20,28 @@ class Product extends \Magento\Framework\Model\AbstractModel
     private $mathRandom;
 
     /**
+     * @var \Cobby\Connector\Model\ResourceModel\Product
+     */
+    private $productResource;
+
+    /**
      * @param \Magento\Framework\Math\Random $mathRandom
+     * @param \Cobby\Connector\Model\ResourceModel\Product $productResource
      */
     public function __construct(
-        \Magento\Framework\Math\Random $mathRandom
+        \Magento\Framework\Math\Random $mathRandom,
+        \Cobby\Connector\Model\ResourceModel\Product $productResource
     ){
         $this->_init('Cobby\Connector\Model\ResourceModel\Product');
         $this->mathRandom = $mathRandom;
+        $this->productResource = $productResource;
     }
 
     public function resetHash($prefix)
     {
         $hash = $prefix.' '.$this->mathRandom->getRandomString(30);
 
-        $this->_getResource()->resetHash($hash);
+        $this->productResource->resetHash($hash);
         return $this;
     }
 
@@ -45,7 +53,7 @@ class Product extends \Magento\Framework\Model\AbstractModel
         }
 
         foreach(array_chunk($ids, 1024) as $chunk )  {
-            $this->_getResource()->updateHash($chunk, $hash);
+            $this->productResource->updateHash($chunk, $hash);
         }
 
         return $this;

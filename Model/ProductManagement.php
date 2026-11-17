@@ -50,6 +50,11 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
     protected $eventManager;
 
     /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product
+     */
+    private $productResource;
+
+    /**
      * ProductManagement constructor.
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
@@ -58,6 +63,7 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
      * @param \Magento\Framework\App\ResourceConnection $resourceModel
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param Product $product
+     * @param \Magento\Catalog\Model\ResourceModel\Product $productResource
      */
     public function __construct(
         \Magento\Framework\Json\Helper\Data $jsonHelper,
@@ -66,11 +72,13 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\ResourceConnection $resourceModel,
         \Magento\Framework\Event\ManagerInterface $eventManager,
-        \Cobby\Connector\Model\Product $product
+        \Cobby\Connector\Model\Product $product,
+        \Magento\Catalog\Model\ResourceModel\Product $productResource
     ) {
         $this->jsonHelper = $jsonHelper;
         $this->productCollectionFactory = $productCollectionFactory;
         $this->productFactory = $productFactory;
+        $this->productResource = $productResource;
         $this->registry = $registry;
         $this->resourceModel = $resourceModel;
         $this->eventManager = $eventManager;
@@ -115,11 +123,11 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
             if (!empty($sku)) {
                 $product = $this->productFactory->create();
                 $product->setData('store_id', \Magento\Store\Model\Store::DEFAULT_STORE_ID);
-                $product->load($productId);
+                $this->productResource->load($product, $productId);
 
                 if ($product->getSku() != null && $product->getSku() !== $sku) {
                     $product->setSku($sku);
-                    $product->save();
+                    $this->productResource->save($product);
                     $changed = true;
                 }
             }
@@ -137,6 +145,8 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
 
         $result = array();
 
+        $productIds = array();
+
         if ($websiteData) {
             $tableName = $this->resourceModel->getTableName('catalog_product_website');
             $connection = $this->resourceModel->getConnection();
@@ -153,6 +163,7 @@ class ProductManagement implements \Cobby\Connector\Api\ProductManagementInterfa
                 );
 
                 if ($websites['add']) {
+                    $websitesData = array();
                     foreach ($websites['add'] as $websiteId) {
                         $websitesData[] = array(
                             'product_id'    => $productId,
