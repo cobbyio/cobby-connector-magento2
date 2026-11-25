@@ -26,31 +26,60 @@ class OrderPlaced implements ObserverInterface
     private $productModel;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    /**
      * OrderPlaced constructor.
      * @param \Cobby\Connector\Helper\Queue $queueHelper
      * @param \Cobby\Connector\Model\ProductFactory $productFactory
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Cobby\Connector\Helper\Queue $queueHelper,
-        \Cobby\Connector\Model\ProductFactory $productFactory
+        \Cobby\Connector\Model\ProductFactory $productFactory,
+        \Psr\Log\LoggerInterface $logger
     ){
         $this->queueHelper = $queueHelper;
         $this->productModel = $productFactory->create();
+        $this->logger = $logger;
     }
 
-    public function execute(\Magento\Framework\Event\Observer $observer){
-        $data = $observer->getEvent()->getOrder()->getData();
-
-        $ids = array();
-
-        if (isset($data['items'])) {
-            foreach ($data['items'] as $item){
-                $ids[] = $item->getData('product_id');
-            }
-            $this->queueHelper->enqueueAndNotify('product', 'save', $ids);
-            $this->productModel->updateHash($ids);
+    /**
+     * Enqueue all ordered products.
+     *
+     * Stays on "sales_order_place_after" (fires in Order::place() after the
+     * payment, before the save): it is the only event covering every way an
+     * order is created (checkout, admin, multishipping, API, importers).
+     * Later events like "checkout_submit_all_after" miss plain
+     * QuoteManagement::submit() callers. The webhook has short timeouts
+     * (see CobbyApi), so it cannot stall the checkout for long.
+     *
+     * @param \Magento\Framework\Event\Observer $observer
+     * @return void
+     */
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        $order = $observer->getEvent()->getOrder();
+        if (!$order) {
+            return;
         }
 
-        return;
+        $ids = [];
+        foreach ($order->getAllItems() as $item) {
+            $ids[] = $item->getProductId();
+        }
+        $ids = array_values(array_unique(array_filter($ids)));
+        if (empty($ids)) {
+            return;
+        }
+
+        try {
+            $this->queueHelper->enqueueAndNotify('product', 'save', $ids);
+            $this->productModel->updateHash($ids);
+        } catch (\Exception $e) {
+            $this->logger->error($e);
+        }
     }
 }
