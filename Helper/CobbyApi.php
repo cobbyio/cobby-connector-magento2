@@ -12,7 +12,17 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * cobby service url
      */
-	const COBBY_API = 'https://api.cobby.io'; 
+	const COBBY_API = 'https://api.cobby.io';
+
+    /**
+     * max seconds to establish the connection to cobby service
+     */
+    const CONNECT_TIMEOUT = 1;
+
+    /**
+     * max seconds for the whole request to cobby service
+     */
+    const TIMEOUT = 2;
 
     /**
      * @var \Cobby\Connector\Helper\Settings
@@ -76,11 +86,18 @@ class CobbyApi extends \Magento\Framework\App\Helper\AbstractHelper
     public function restPost($method, array $data)
     {
         $apiUrl = self::COBBY_API . '/' . $method;
-        $this->curl->post($apiUrl, $data);
+        // options must be set before the request is executed,
+        // otherwise magento's default timeout of 300 seconds is used.
+        // the notify is only a wake-up (queue lives in the shop db),
+        // so short timeouts are fine and the shop never blocks for long.
+        $this->curl->setTimeout(self::TIMEOUT);
         $this->curl->setOptions([
             CURLOPT_MAXREDIRS => 0,
-            CURLOPT_TIMEOUT => 60
+            CURLOPT_CONNECTTIMEOUT => self::CONNECT_TIMEOUT,
+            CURLOPT_TIMEOUT => self::TIMEOUT,
+            CURLOPT_NOSIGNAL => 1
         ]);
+        $this->curl->post($apiUrl, $data);
 
         if ($this->curl->getStatus() != 200 && $this->curl->getStatus() != 201) {
             $errorRestResultAsObject = json_decode($this->curl->getBody());

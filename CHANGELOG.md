@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+## unreleased
+- Bugfix | set connect (1s) / request (2s) timeout (+ `CURLOPT_NOSIGNAL`) for cobby api notify before the request is sent (was 300s default), shop no longer hangs if api.cobby.io is unreachable
+- Bugfix | order observer (`sales_order_place_after`) can no longer abort the checkout: errors while enqueueing/updating the hash are caught and logged; product ids are read via `getAllItems()` and de-duplicated
+
 ## 2.4.16
 - Bugfix | fix nullable type declarations for php 8.4 - thanks [netzkollektiv](https://github.com/netzkollektiv)
 
