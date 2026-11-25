@@ -165,7 +165,6 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
      * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate
-     * @param \Magento\Eav\Model\Config $config
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory $attributeColFactory ,
      * @param \Magento\CatalogInventory\Model\ResourceModel\Stock\ItemFactory $itemFactory ,
@@ -179,7 +178,6 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Eav\Model\Config $config,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory $attributeColFactory,
         \Magento\CatalogInventory\Model\ResourceModel\Stock\ItemFactory $itemFactory,
@@ -193,8 +191,6 @@ class Product extends \Cobby\Connector\Model\Export\AbstractEntity
         $this->_entityCollectionFactory = $collectionFactory;
         $this->localeDate = $localeDate;
         $this->storeManager = $storeManager;
-//        $entityCode = $this->getEntityTypeCode();
-//        $this->_entityTypeId = $config->getEntityType($entityCode)->getEntityTypeId();
         $this->resourceModel = $resourceModel;
         $this->connection = $resourceModel->getConnection();
         $this->_attributeColFactory = $attributeColFactory;

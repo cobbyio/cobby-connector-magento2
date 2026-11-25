@@ -116,6 +116,11 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     protected $productFactory;
 
     /**
+     * @var \Magento\Catalog\Model\ResourceModel\Product
+     */
+    private $productResource;
+
+    /**
      * constructor.
      * @param \Magento\Framework\App\ResourceConnection $resourceModel
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
@@ -132,6 +137,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
      * @param \Magento\Catalog\Helper\Image $imageHelper
      * @param \Magento\Framework\Image\AdapterFactory $imageAdapterFactory
      * @param \Magento\Catalog\Model\ProductFactory $productFactory
+     * @param \Magento\Catalog\Model\ResourceModel\Product $productResource
      */
     public function __construct(
         \Magento\Framework\App\ResourceConnection $resourceModel,
@@ -148,7 +154,8 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         \Magento\Framework\Filesystem\Io\File $fileHelper,
         \Magento\Catalog\Helper\Image $imageHelper,
         \Magento\Framework\Image\AdapterFactory $imageAdapterFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Catalog\Model\ResourceModel\Product $productResource
     )
     {
         parent::__construct($resourceModel, $productCollectionFactory, $eventManager, $resourceHelper, $product);
@@ -165,6 +172,7 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
         $this->imageAdapter = $imageAdapterFactory->create();
         $this->importDir = $this->mediaDirectory->getAbsolutePath('pub/media/import');
         $this->productFactory = $productFactory;
+        $this->productResource = $productResource;
     }
 
     private function getStoreIds()
@@ -693,7 +701,8 @@ class ImageManagement extends AbstractManagement implements \Cobby\Connector\Api
     public function getLinkId($productId)
     {
         if (!isset($this->linkIdCache[$productId])) {
-            $product = $this->productFactory->create()->load($productId);
+            $product = $this->productFactory->create();
+            $this->productResource->load($product, $productId);
             $this->linkIdCache[$productId] = $product->getData($this->getProductEntityLinkField());
         }
         return $this->linkIdCache[$productId];
